@@ -47,6 +47,7 @@ class Globe {
     this._buildAtmosphere();
     this._buildLights();
     this._buildMarkers();
+    this._buildPlane();
 
     this.tmpVec = new THREE.Vector3();
     this.clock = new THREE.Clock();
@@ -196,6 +197,61 @@ class Globe {
     this.earth.add(this.pin);
   }
 
+  /* a little airliner that flies between stops as you scroll */
+  _planeSprite() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.translate(64, 64);
+    g.shadowColor = 'rgba(127, 196, 255, 0.95)';
+    g.shadowBlur = 9;
+    g.fillStyle = '#f3f8ff';
+    // top-down airliner silhouette, nose pointing up (-y)
+    const P = [
+      [0, -46], [3.5, -30], [4, -8], [44, 12], [44, 20], [4, 8], [4, 26],
+      [15, 38], [15, 43], [2, 38], [2, 47], [-2, 47], [-2, 38], [-15, 43],
+      [-15, 38], [-4, 26], [-4, 8], [-44, 20], [-44, 12], [-4, -8], [-3.5, -30],
+    ];
+    g.beginPath();
+    g.moveTo(P[0][0], P[0][1]);
+    for (let i = 1; i < P.length; i++) g.lineTo(P[i][0], P[i][1]);
+    g.closePath();
+    g.fill();
+    const t = new THREE.Texture(c);
+    t.needsUpdate = true;
+    return t;
+  }
+
+  _buildPlane() {
+    const mat = new THREE.SpriteMaterial({
+      map: this._planeSprite(), transparent: true,
+      depthTest: false, depthWrite: false,
+    });
+    this.plane = new THREE.Sprite(mat);
+    this.plane.scale.set(0.11, 0.11, 1);
+    this.plane.visible = false;
+    this.earth.add(this.plane);         // child of earth -> rides the surface
+  }
+
+  /* position the plane along the great circle from A to B at progress t */
+  _updatePlane(keyA, keyB, t) {
+    const A = window.LOCATIONS[keyA], B = window.LOCATIONS[keyB];
+    if (!A || !B || t <= 0.03 || t >= 0.97) { this.plane.visible = false; return; }
+    const va = latLonToVec3(A.lat, A.lon, 1).normalize();
+    const vb = latLonToVec3(B.lat, B.lon, 1).normalize();
+    const cur = va.clone().lerp(vb, t).normalize();
+    const curWorld = cur.clone().applyQuaternion(this.earth.quaternion);
+    if (curWorld.z <= 0.03) { this.plane.visible = false; return; }   // far side
+    const alt = 1.05 + Math.sin(t * Math.PI) * 0.08;                  // arc up then land
+    this.plane.position.copy(cur).multiplyScalar(alt);
+    this.plane.visible = true;
+    // heading: face the direction of travel in screen space
+    const ahead = va.clone().lerp(vb, Math.min(1, t + 0.03)).normalize()
+      .applyQuaternion(this.earth.quaternion).project(this.camera);
+    const here = curWorld.clone().project(this.camera);
+    this.plane.material.rotation = Math.atan2(ahead.y - here.y, ahead.x - here.x) - Math.PI / 2;
+  }
+
   /* -------------------------------------------------- orientation math */
 
   /* Quaternion that brings (lat,lon) to face the camera with north up. */
@@ -222,6 +278,7 @@ class Globe {
     this.earth.quaternion.copy(q);
     this.clouds.quaternion.copy(q);
     this.setActive(key);
+    if (this.plane) this.plane.visible = false;
   }
 
   /* Interpolate orientation between two locations (t: 0..1). */
@@ -230,6 +287,7 @@ class Globe {
     this.earth.quaternion.copy(q);
     this.clouds.quaternion.copy(q);
     this.setActive(t < 0.5 ? keyA : keyB);
+    this._updatePlane(keyA, keyB, t);
   }
 
   /* mark which location is "current" (drives the pin + HTML label) */

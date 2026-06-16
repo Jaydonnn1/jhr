@@ -29,8 +29,8 @@
     <a href="#hero" class="brand" data-target="hero">JHR</a>
     <div class="navlinks">
       <a href="#founding"    data-target="founding">Founding</a>
-      <a href="#travels"     data-target="travels">Travels</a>
       <a href="#experiences" data-target="experiences">Experiences</a>
+      <a href="#travels"     data-target="travels">Travels</a>
       <a href="#contact"     data-target="contact" class="nav-contact">Contact</a>
     </div>
   </nav>
@@ -43,13 +43,13 @@
         <h1 class="hero-title">Welcome to<br />my world.</h1>
         <p class="hero-sub">
           Chemical engineer, founder and traveller. Spin the globe through the
-          places that have shaped me — from a startup in San Francisco to nine
-          countries across the Americas, and the universities and labs in between.
+          places that have shaped me — a startup in San Francisco, the universities
+          and labs in between, and a year overland through the Americas.
         </p>
         <div class="hero-cta">
           <button class="btn" data-target="founding">Founding</button>
-          <button class="btn" data-target="travels">Travels</button>
           <button class="btn" data-target="experiences">Experiences</button>
+          <button class="btn" data-target="travels">Travels</button>
         </div>
       </div>
       <div class="scroll-hint"><span>Scroll to explore</span><i></i></div>
@@ -61,62 +61,109 @@
         <p class="eyebrow">01 — Founding</p>
         <h2>San Francisco</h2>
         <p class="locline">California, USA</p>
-        <!-- ✍️ Josh: replace the paragraph below with your founding story. -->
-        <p class="placeholder">
-          [ Your founding story goes here. What you're building, why San Francisco,
-          what problem you're solving, and where it's headed. A couple of paragraphs
-          works well. ]
+        <p>
+          Building the operating layer for chemical manufacturers and distributors,
+          one of the most regulated industries in the world. It's the economy that
+          powers our day-to-day lives — from the moment you wake up to everything we use.
         </p>
-        <p class="placeholder">
-          [ Optional second paragraph — the moment you decided to start, the team,
-          a milestone you're proud of. ]
+        <p>
+          I wanted to build for this industry specifically, as they're the building
+          blocks for everything that goes on in the world.
         </p>
         <a class="textlink" href="https://usecatalon.com" target="_blank" rel="noopener">Visit the company ↗</a>
+      </div>
+    </section>
+
+    <!-- ========================= EXPERIENCES ======================= -->
+    <section class="step" id="experiences" data-loc="edinburgh">
+      <div class="panel">
+        <p class="eyebrow">02 — Experiences</p>
+        <h2>Edinburgh</h2>
+        <p class="locline">University of Edinburgh · Scotland</p>
+        <p>Studied chemical engineering at Edinburgh, class of 2025.</p>
+      </div>
+    </section>
+
+    <section class="step" id="exp-berkeley" data-loc="berkeley">
+      <div class="panel">
+        <p class="eyebrow">Experiences · Year abroad</p>
+        <h3>Berkeley</h3>
+        <p class="locline">UC Berkeley · California</p>
+        <p>Spent my year abroad at Berkeley — got to take cool classes, explore the
+          startup world, and surf. (2023)</p>
+      </div>
+    </section>
+
+    <section class="step" id="exp-yale" data-loc="newHaven">
+      <div class="panel">
+        <p class="eyebrow">Experiences · Research</p>
+        <h3>Yale</h3>
+        <p class="locline">New Haven, Connecticut</p>
+        <p>Research on metal–organic frameworks for rare-earth metal recovery.</p>
+      </div>
+    </section>
+
+    <section class="step" id="exp-tesla" data-loc="fremont">
+      <div class="panel">
+        <p class="eyebrow">Experiences · Industry</p>
+        <h3>Tesla</h3>
+        <p class="locline">Fremont, California</p>
+        <p>Scaling novel cathode manufacturing.</p>
       </div>
     </section>
 
     <!-- =========================== TRAVELS ========================= -->
     <section class="step" id="travels" data-loc="region">
       <div class="panel">
-        <p class="eyebrow">02 — Travels</p>
+        <p class="eyebrow">03 — Travels</p>
         <h2>The Americas</h2>
-        <p class="locline">Nine countries, overland</p>
-        <!-- ✍️ Josh: short intro to the trip. -->
-        <p class="placeholder">
-          [ Set the scene for the journey — when you went, the route, what drew you
-          to travel Central and South America overland. ]
+        <p class="locline">Mexico to Brazil, overland</p>
+        <p>
+          I took a year out of uni to do this route — to learn some Spanish, hit some
+          cool surf spots, meet great people, and eat fantastic food.
         </p>
-        <p class="hint">Pick a country, or just keep scrolling — the globe follows along.</p>
+        <p class="hint">Pick a stop, or just keep scrolling — the globe follows along.</p>
         <div class="chips" id="country-chips">
-          <button class="chip" data-target="travel-mexico">Mexico</button>
-          <button class="chip" data-target="travel-belize">Belize</button>
+          <button class="chip" data-target="travel-mexicoCity">Mexico City</button>
+          <button class="chip" data-target="travel-cancun">Cancún</button>
+          <button class="chip" data-target="travel-belizeCity">Belize City</button>
           <button class="chip" data-target="travel-guatemala">Guatemala</button>
           <button class="chip" data-target="travel-elSalvador">El Salvador</button>
           <button class="chip" data-target="travel-nicaragua">Nicaragua</button>
           <button class="chip" data-target="travel-costaRica">Costa Rica</button>
-          <button class="chip" data-target="travel-peru">Peru</button>
-          <button class="chip" data-target="travel-bolivia">Bolivia</button>
-          <button class="chip" data-target="travel-brazil">Brazil</button>
+          <button class="chip" data-target="travel-cusco">Cusco</button>
+          <button class="chip" data-target="travel-laPaz">Bolivia</button>
+          <button class="chip" data-target="travel-saoPaulo">São Paulo</button>
         </div>
       </div>
     </section>
 
-    <!-- Country reports: one panel each. main.js wires data-loc -> globe. -->
-    <section class="step travel-stop" id="travel-mexico" data-loc="mexico" data-chip="travel-mexico">
+    <!-- Travel stops: one panel each. main.js wires data-loc -> globe. -->
+    <section class="step travel-stop" id="travel-mexicoCity" data-loc="mexicoCity" data-chip="travel-mexicoCity">
       <div class="panel">
         <p class="eyebrow">Travels · Mexico</p>
-        <h3>Mexico</h3>
-        <p class="locline">Mexico City</p>
-        <p class="placeholder">[ Your short report on Mexico. ]</p>
+        <h3>Mexico City</h3>
+        <p class="locline">Mexico</p>
+        <p class="placeholder">[ Your short report on Mexico City. ]</p>
         <a class="textlink" href="mexico-to-colombia.html#getting-there">Read the full Central America journey ↗</a>
       </div>
     </section>
 
-    <section class="step travel-stop" id="travel-belize" data-loc="belize" data-chip="travel-belize">
+    <section class="step travel-stop" id="travel-cancun" data-loc="cancun" data-chip="travel-cancun">
+      <div class="panel">
+        <p class="eyebrow">Travels · Mexico</p>
+        <h3>Cancún</h3>
+        <p class="locline">Mexico</p>
+        <p class="placeholder">[ Your short report on Cancún. ]</p>
+        <a class="textlink" href="mexico-to-colombia.html#yucatan">Read the full journey ↗</a>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-belizeCity" data-loc="belizeCity" data-chip="travel-belizeCity">
       <div class="panel">
         <p class="eyebrow">Travels · Belize</p>
-        <h3>Belize</h3>
-        <p class="locline">Belmopan</p>
+        <h3>Belize City</h3>
+        <p class="locline">Belize</p>
         <p class="placeholder">[ Your short report on Belize. ]</p>
         <a class="textlink" href="mexico-to-colombia.html#belize">Read the full journey ↗</a>
       </div>
@@ -161,17 +208,17 @@
       </div>
     </section>
 
-    <section class="step travel-stop" id="travel-peru" data-loc="peru" data-chip="travel-peru">
+    <section class="step travel-stop" id="travel-cusco" data-loc="cusco" data-chip="travel-cusco">
       <div class="panel">
         <p class="eyebrow">Travels · Peru</p>
-        <h3>Peru</h3>
-        <p class="locline">Lima</p>
-        <p class="placeholder">[ Your short report on Peru. ]</p>
+        <h3>Cusco</h3>
+        <p class="locline">Machu Picchu, Peru</p>
+        <p class="placeholder">[ Your short report on Cusco &amp; Machu Picchu. ]</p>
         <a class="textlink" href="lima-to-ushuaia.html#peru">Read the full Peru, Bolivia &amp; Brazil journey ↗</a>
       </div>
     </section>
 
-    <section class="step travel-stop" id="travel-bolivia" data-loc="bolivia" data-chip="travel-bolivia">
+    <section class="step travel-stop" id="travel-laPaz" data-loc="laPaz" data-chip="travel-laPaz">
       <div class="panel">
         <p class="eyebrow">Travels · Bolivia</p>
         <h3>Bolivia</h3>
@@ -181,69 +228,24 @@
       </div>
     </section>
 
-    <section class="step travel-stop" id="travel-brazil" data-loc="brazil" data-chip="travel-brazil">
+    <section class="step travel-stop" id="travel-saoPaulo" data-loc="saoPaulo" data-chip="travel-saoPaulo">
       <div class="panel">
         <p class="eyebrow">Travels · Brazil</p>
-        <h3>Brazil</h3>
-        <p class="locline">Brasília</p>
-        <p class="placeholder">[ Your short report on Brazil. ]</p>
+        <h3>São Paulo</h3>
+        <p class="locline">Brazil</p>
+        <p class="placeholder">[ Your short report on São Paulo. ]</p>
         <a class="textlink" href="lima-to-ushuaia.html#brazil">Read the full journey ↗</a>
       </div>
     </section>
 
-    <!-- ========================= EXPERIENCES ======================= -->
-    <section class="step" id="experiences" data-loc="edinburgh">
-      <div class="panel">
-        <p class="eyebrow">03 — Experiences</p>
-        <h2>Edinburgh</h2>
-        <p class="locline">University of Edinburgh · Scotland</p>
-        <!-- ✍️ Josh: university + carbon-capture research. -->
-        <p class="placeholder">
-          [ Your time at the University of Edinburgh — what you studied, and your
-          research on carbon capture. ]
-        </p>
-        <p class="placeholder">
-          [ Optional: the specifics of the carbon-capture work — the approach,
-          findings, what you learned. ]
-        </p>
-      </div>
-    </section>
-
-    <section class="step" id="exp-berkeley" data-loc="berkeley">
-      <div class="panel">
-        <p class="eyebrow">Experiences · Year abroad</p>
-        <h3>Berkeley</h3>
-        <p class="locline">UC Berkeley · California</p>
-        <p class="placeholder">[ Your year abroad at UC Berkeley. ]</p>
-      </div>
-    </section>
-
-    <section class="step" id="exp-yale" data-loc="newHaven">
-      <div class="panel">
-        <p class="eyebrow">Experiences · Research</p>
-        <h3>Yale</h3>
-        <p class="locline">New Haven, Connecticut</p>
-        <p class="placeholder">[ Your research at Yale / New Haven. ]</p>
-      </div>
-    </section>
-
-    <section class="step" id="exp-tesla" data-loc="fremont">
-      <div class="panel">
-        <p class="eyebrow">Experiences · Industry</p>
-        <h3>Tesla</h3>
-        <p class="locline">Fremont, California</p>
-        <p class="placeholder">[ Your time at Tesla. ]</p>
-      </div>
-    </section>
-
     <!-- =========================== CONTACT ========================= -->
-    <section class="step contact" id="contact" data-loc="home">
+    <section class="step contact" id="contact" data-loc="london">
       <div class="panel contact-panel">
-        <p class="eyebrow">Get in touch</p>
+        <p class="eyebrow">Back to London</p>
         <h2>Let's talk.</h2>
         <p class="hero-sub">
-          Always happy to chat about climate tech, engineering, founding, or where
-          to go next.
+          Home base. Always happy to chat about climate tech, engineering, founding,
+          or where to go next.
         </p>
         <div class="contact-links">
           <a class="btn" href="mailto:josh@usecatalon.com">Email</a>
