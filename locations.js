@@ -23,9 +23,7 @@ window.LOCATIONS = {
   cancun:      { lat: 21.1619, lon: -86.8515, label: 'Cancún',       sub: 'Mexico' },
   belizeCity:  { lat: 17.5046, lon: -88.1962, label: 'Belize City',  sub: 'Belize' },
   guatemala:   { lat: 14.6349, lon: -90.5069, label: 'Guatemala',    sub: 'Guatemala City' },
-  elSalvador:  { lat: 13.6929, lon: -89.2182, label: 'El Salvador',  sub: 'San Salvador' },
   nicaragua:   { lat: 12.1364, lon: -86.2514, label: 'Nicaragua',    sub: 'Managua' },
-  costaRica:   { lat: 9.9281,  lon: -84.0907, label: 'Costa Rica',   sub: 'San José' },
   cusco:       { lat: -13.5319, lon: -71.9675, label: 'Cusco',       sub: 'Machu Picchu, Peru' },
   laPaz:       { lat: -16.4897, lon: -68.1193, label: 'Bolivia',     sub: 'La Paz' },
   saoPaulo:    { lat: -23.5505, lon: -46.6333, label: 'São Paulo',   sub: 'Brazil' },
@@ -36,6 +34,6 @@ window.LOCATIONS = {
 
 /* The ordered list of travel stops (drives the chips + scroll sequence). */
 window.TRAVEL_ORDER = [
-  'mexicoCity', 'cancun', 'belizeCity', 'guatemala', 'elSalvador',
-  'nicaragua', 'costaRica', 'cusco', 'laPaz', 'saoPaulo',
+  'mexicoCity', 'cancun', 'belizeCity', 'guatemala',
+  'nicaragua', 'cusco', 'laPaz', 'saoPaulo',
 ];
