@@ -267,6 +267,7 @@ class Globe {
   quatFor(key) {
     if (!this.quatCache[key]) {
       const l = window.LOCATIONS[key];
+      if (!l) { console.warn('Globe: unknown location key', key); return new THREE.Quaternion(); }
       this.quatCache[key] = this.orientFor(l.lat, l.lon);
     }
     return this.quatCache[key];
