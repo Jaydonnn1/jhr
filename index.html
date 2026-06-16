@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="canonical" href="https://joshhaydonrowe.com/" />
+  <title>Josh Haydon Rowe</title>
+  <meta name="description" content="Josh Haydon Rowe — chemical engineer, founder, and traveller. A journey around the world." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- ============================= GLOBE ============================= -->
+  <canvas id="globe-canvas"></canvas>
+  <div class="scrim"></div>
+
+  <!-- floating location label that tracks the active spot on the globe -->
+  <div id="globe-label">
+    <span class="gl-dot"></span>
+    <span class="gl-text"><span class="gl-title"></span><span class="gl-sub"></span></span>
+  </div>
+
+  <!-- ============================== NAV ============================= -->
+  <nav class="topnav">
+    <a href="#hero" class="brand" data-target="hero">JHR</a>
+    <div class="navlinks">
+      <a href="#founding"    data-target="founding">Founding</a>
+      <a href="#travels"     data-target="travels">Travels</a>
+      <a href="#experiences" data-target="experiences">Experiences</a>
+      <a href="#contact"     data-target="contact" class="nav-contact">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ============================= HERO ========================== -->
+    <section class="step hero" id="hero" data-loc="home">
+      <div class="panel hero-panel">
+        <p class="eyebrow">Josh Haydon&nbsp;Rowe</p>
+        <h1 class="hero-title">Welcome to<br />my world.</h1>
+        <p class="hero-sub">
+          Chemical engineer, founder and traveller. Spin the globe through the
+          places that have shaped me — from a startup in San Francisco to nine
+          countries across the Americas, and the universities and labs in between.
+        </p>
+        <div class="hero-cta">
+          <button class="btn" data-target="founding">Founding</button>
+          <button class="btn" data-target="travels">Travels</button>
+          <button class="btn" data-target="experiences">Experiences</button>
+        </div>
+      </div>
+      <div class="scroll-hint"><span>Scroll to explore</span><i></i></div>
+    </section>
+
+    <!-- =========================== FOUNDING ======================== -->
+    <section class="step" id="founding" data-loc="sanFrancisco">
+      <div class="panel">
+        <p class="eyebrow">01 — Founding</p>
+        <h2>San Francisco</h2>
+        <p class="locline">California, USA</p>
+        <!-- ✍️ Josh: replace the paragraph below with your founding story. -->
+        <p class="placeholder">
+          [ Your founding story goes here. What you're building, why San Francisco,
+          what problem you're solving, and where it's headed. A couple of paragraphs
+          works well. ]
+        </p>
+        <p class="placeholder">
+          [ Optional second paragraph — the moment you decided to start, the team,
+          a milestone you're proud of. ]
+        </p>
+        <a class="textlink" href="https://usecatalon.com" target="_blank" rel="noopener">Visit the company ↗</a>
+      </div>
+    </section>
+
+    <!-- =========================== TRAVELS ========================= -->
+    <section class="step" id="travels" data-loc="region">
+      <div class="panel">
+        <p class="eyebrow">02 — Travels</p>
+        <h2>The Americas</h2>
+        <p class="locline">Nine countries, overland</p>
+        <!-- ✍️ Josh: short intro to the trip. -->
+        <p class="placeholder">
+          [ Set the scene for the journey — when you went, the route, what drew you
+          to travel Central and South America overland. ]
+        </p>
+        <p class="hint">Pick a country, or just keep scrolling — the globe follows along.</p>
+        <div class="chips" id="country-chips">
+          <button class="chip" data-target="travel-mexico">Mexico</button>
+          <button class="chip" data-target="travel-belize">Belize</button>
+          <button class="chip" data-target="travel-guatemala">Guatemala</button>
+          <button class="chip" data-target="travel-elSalvador">El Salvador</button>
+          <button class="chip" data-target="travel-nicaragua">Nicaragua</button>
+          <button class="chip" data-target="travel-costaRica">Costa Rica</button>
+          <button class="chip" data-target="travel-peru">Peru</button>
+          <button class="chip" data-target="travel-bolivia">Bolivia</button>
+          <button class="chip" data-target="travel-brazil">Brazil</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Country reports: one panel each. main.js wires data-loc -> globe. -->
+    <section class="step travel-stop" id="travel-mexico" data-loc="mexico" data-chip="travel-mexico">
+      <div class="panel">
+        <p class="eyebrow">Travels · Mexico</p>
+        <h3>Mexico</h3>
+        <p class="locline">Mexico City</p>
+        <p class="placeholder">[ Your short report on Mexico. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-belize" data-loc="belize" data-chip="travel-belize">
+      <div class="panel">
+        <p class="eyebrow">Travels · Belize</p>
+        <h3>Belize</h3>
+        <p class="locline">Belmopan</p>
+        <p class="placeholder">[ Your short report on Belize. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-guatemala" data-loc="guatemala" data-chip="travel-guatemala">
+      <div class="panel">
+        <p class="eyebrow">Travels · Guatemala</p>
+        <h3>Guatemala</h3>
+        <p class="locline">Guatemala City</p>
+        <p class="placeholder">[ Your short report on Guatemala. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-elSalvador" data-loc="elSalvador" data-chip="travel-elSalvador">
+      <div class="panel">
+        <p class="eyebrow">Travels · El Salvador</p>
+        <h3>El Salvador</h3>
+        <p class="locline">San Salvador</p>
+        <p class="placeholder">[ Your short report on El Salvador. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-nicaragua" data-loc="nicaragua" data-chip="travel-nicaragua">
+      <div class="panel">
+        <p class="eyebrow">Travels · Nicaragua</p>
+        <h3>Nicaragua</h3>
+        <p class="locline">Managua</p>
+        <p class="placeholder">[ Your short report on Nicaragua. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-costaRica" data-loc="costaRica" data-chip="travel-costaRica">
+      <div class="panel">
+        <p class="eyebrow">Travels · Costa Rica</p>
+        <h3>Costa Rica</h3>
+        <p class="locline">San José</p>
+        <p class="placeholder">[ Your short report on Costa Rica. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-peru" data-loc="peru" data-chip="travel-peru">
+      <div class="panel">
+        <p class="eyebrow">Travels · Peru</p>
+        <h3>Peru</h3>
+        <p class="locline">Lima</p>
+        <p class="placeholder">[ Your short report on Peru. ]</p>
+        <a class="textlink" href="lima-to-ushuaia.html">Read the full Peru &amp; the south journey ↗</a>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-bolivia" data-loc="bolivia" data-chip="travel-bolivia">
+      <div class="panel">
+        <p class="eyebrow">Travels · Bolivia</p>
+        <h3>Bolivia</h3>
+        <p class="locline">La Paz</p>
+        <p class="placeholder">[ Your short report on Bolivia. ]</p>
+      </div>
+    </section>
+
+    <section class="step travel-stop" id="travel-brazil" data-loc="brazil" data-chip="travel-brazil">
+      <div class="panel">
+        <p class="eyebrow">Travels · Brazil</p>
+        <h3>Brazil</h3>
+        <p class="locline">Brasília</p>
+        <p class="placeholder">[ Your short report on Brazil. ]</p>
+      </div>
+    </section>
+
+    <!-- ========================= EXPERIENCES ======================= -->
+    <section class="step" id="experiences" data-loc="edinburgh">
+      <div class="panel">
+        <p class="eyebrow">03 — Experiences</p>
+        <h2>Edinburgh</h2>
+        <p class="locline">University of Edinburgh · Scotland</p>
+        <!-- ✍️ Josh: university + carbon-capture research. -->
+        <p class="placeholder">
+          [ Your time at the University of Edinburgh — what you studied, and your
+          research on carbon capture. ]
+        </p>
+        <p class="placeholder">
+          [ Optional: the specifics of the carbon-capture work — the approach,
+          findings, what you learned. ]
+        </p>
+      </div>
+    </section>
+
+    <section class="step" id="exp-berkeley" data-loc="berkeley">
+      <div class="panel">
+        <p class="eyebrow">Experiences · Year abroad</p>
+        <h3>Berkeley</h3>
+        <p class="locline">UC Berkeley · California</p>
+        <p class="placeholder">[ Your year abroad at UC Berkeley. ]</p>
+      </div>
+    </section>
+
+    <section class="step" id="exp-yale" data-loc="newHaven">
+      <div class="panel">
+        <p class="eyebrow">Experiences · Research</p>
+        <h3>Yale</h3>
+        <p class="locline">New Haven, Connecticut</p>
+        <p class="placeholder">[ Your research at Yale / New Haven. ]</p>
+      </div>
+    </section>
+
+    <section class="step" id="exp-tesla" data-loc="fremont">
+      <div class="panel">
+        <p class="eyebrow">Experiences · Industry</p>
+        <h3>Tesla</h3>
+        <p class="locline">Fremont, California</p>
+        <p class="placeholder">[ Your time at Tesla. ]</p>
+      </div>
+    </section>
+
+    <!-- =========================== CONTACT ========================= -->
+    <section class="step contact" id="contact" data-loc="home">
+      <div class="panel contact-panel">
+        <p class="eyebrow">Get in touch</p>
+        <h2>Let's talk.</h2>
+        <p class="hero-sub">
+          Always happy to chat about climate tech, engineering, founding, or where
+          to go next.
+        </p>
+        <div class="contact-links">
+          <a class="btn" href="mailto:josh@usecatalon.com">Email</a>
+          <!-- ✍️ Josh: add your real profile links below -->
+          <a class="btn ghost" href="#" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn ghost" href="#" target="_blank" rel="noopener">X / Twitter</a>
+        </div>
+        <p class="copyright">© <span id="year"></span> Josh Haydon Rowe</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================ SCRIPTS =========================== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="locations.js"></script>
+  <script src="globe.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

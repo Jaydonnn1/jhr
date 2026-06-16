@@ -1,161 +1,51 @@
-<html lang="en">
-<head>
-    <link rel="canonical" href="https://joshhaydonrowe.com/" />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Josh Haydon Rowe</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #000000;
-    }
+# joshhaydonrowe.com
 
-    .top-nav {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        display: flex;
-        gap: 15px;
-        z-index: 1000;
-    }
+A personal site built around an interactive 3D Earth. The globe flies between
+real locations as you scroll (or click the nav), telling the story of founding,
+travels, and experiences.
 
-    .top-nav a {
-        text-decoration: none;
-        color: #fff;
-        padding: 10px 20px;
-        border: 1px solid #fff;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        background-color: transparent;
-    }
+Static site, no build step — deployed via GitHub Pages (`CNAME` →
+`joshhaydonrowe.com`).
 
-    .top-nav a:hover {
-        background-color: #fff;
-        color: #000;
-    }
+## Stack
 
-    .header-content {
-        text-align: center;
-        padding: 40px 0;
-        color: #fff;
-        position: relative;
-        z-index: 1;
-    }
+- **Three.js** (r128) — the globe: photoreal earth, atmosphere glow, starfield, markers
+- **GSAP + ScrollTrigger** — scroll-synced globe orientation and the hero text effect
+- **Lenis** — smooth scrolling
+- All loaded from CDNs; the only local assets are the earth textures in `assets/`.
 
-    .header-content h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
-    }
+## Files
 
-    .header-content p {
-        font-size: 1.2em;
-    }
+| File | What it does |
+|------|--------------|
+| `index.html`   | Page structure: hero + Founding + Travels (9 countries) + Experiences + Contact |
+| `styles.css`   | All styling (layout, scrim, nav, chips, responsive) |
+| `globe.js`     | The `Globe` class — renders the earth and orients it to any lat/lon |
+| `locations.js` | **Coordinates + labels for every place the globe flies to** |
+| `main.js`      | Smooth scroll, scroll-driven globe travel, nav/chip interactions |
+| `assets/`      | Earth day / specular / cloud textures |
 
-    section {
-        padding: 50px;
-        color: #fff;
-        position: relative;
-        z-index: 1;
-        background-color: rgba(0, 0, 0, 0.7);
-    }
+## Editing content
 
-    h2 {
-        text-align: center;
-    }
+- **Your words:** every paragraph marked `class="placeholder"` (and `[ bracketed ]`)
+  in `index.html` is a spot for you to write. Replace the text, drop the
+  `placeholder` class, done.
+- **Add / move a location:** edit `locations.js`. Each entry is
+  `key: { lat, lon, label, sub }`. The globe automatically flies to whatever
+  `data-loc="key"` a section carries.
+- **Re-order travel countries:** they're plain `<section class="step travel-stop">`
+  blocks in document order — reorder the blocks (and the chips above them).
 
-    .travel-buttons button {
-        padding: 10px 20px;
-        margin: 5px;
-        cursor: pointer;
-        background-color: transparent;
-        color: #fff;
-        border: 1px solid #fff;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-    }
+## Run locally
 
-    .travel-buttons button:hover {
-        background-color: #fff;
-        color: #000;
-    }
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000
+```
 
-    #globe-container {
-        background-color: #000000;
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 0;
-    }
-    
-    #globe-canvas {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-    }
+(A static server is needed so the browser can load the texture files.)
 
-    .viewing-space {
-        height: 100vh;
-        background: transparent;
-    }
-</style>
-</head>
+## Tuning a pin
 
-<body>
-    <div id="globe-container">
-        <canvas id="globe-canvas"></canvas>
-    </div>
-    
-    <div class="top-nav">
-        <a href="#engineering">Engineering</a>
-        <a href="#travels">Travels</a>
-    </div>
-
-    <div class="header-content">
-        <h1>Josh Haydon Rowe</h1>
-        <p>Welcome to My Personal Website</p>
-    </div>
-
-    <section id="introduction">
-        <h2>Introduction</h2>
-        <p>I am a senior majoring in chemical engineering at the University of Edinburgh with a year abroad at UC Berkeley, with research experience at Yale, and a few months interning at Tesla. I'm interested in renewable energy sources, climate tech, global exploration, language learning & a little surfing on the side.</p>
-    </section>
-
-    <section id="engineering">
-        <h2>Engineering</h2>
-        <p>This section is dedicated to engineering.</p>
-    </section>
-
-    <section id="travels">
-        <h2>Travels</h2>
-        <p>Explore my travel adventures:</p>
-        <div class="travel-buttons">
-            <button onclick="location.href='mexico-to-colombia.html'">Mexico to Nicaragua</button>
-            <button onclick="location.href='lima-to-ushuaia.html'"> Around Peru and it's neighbours</button>
-        </div>
-    </section>
-
-    <div class="viewing-space"></div>
-    
-    <script src="globe.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const globe = new Globe();
-            
-            window.addEventListener('resize', () => {
-                globe.camera.aspect = window.innerWidth / window.innerHeight;
-                globe.camera.updateProjectionMatrix();
-                globe.renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        });
-    </script>
-</body>
-</html>
+If a marker ever looks slightly off a coastline, nudge its `lat`/`lon` in
+`locations.js`. The orientation math lives in `Globe.orientFor()`.
