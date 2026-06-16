@@ -18,7 +18,7 @@ window.LOCATIONS = {
   fremont:     { lat: 37.5485, lon: -121.9886, label: 'Fremont',     sub: 'Tesla · California' },
 
   /* Travels — establishing shot, then the route */
-  region:      { lat: 14,      lon: -88,      label: 'The Americas', sub: 'overland' },
+  region:      { lat: 24,      lon: -102,     label: 'The Americas', sub: 'overland' },
   mexicoCity:  { lat: 19.4326, lon: -99.1332, label: 'Mexico City',  sub: 'Mexico' },
   cancun:      { lat: 21.1619, lon: -86.8515, label: 'Cancún',       sub: 'Mexico' },
   belizeCity:  { lat: 17.5046, lon: -88.1962, label: 'Belize City',  sub: 'Belize' },
@@ -29,7 +29,7 @@ window.LOCATIONS = {
   saoPaulo:    { lat: -23.5505, lon: -46.6333, label: 'São Paulo',   sub: 'Brazil' },
 
   /* Home base — the journey returns here */
-  london:      { lat: 51.5074, lon: -0.1278,  label: 'London',       sub: 'Home base' },
+  london:      { lat: 51.5074, lon: -0.1278,  label: 'London',       sub: '' },
 };
 
 /* The ordered list of travel stops (drives the chips + scroll sequence). */

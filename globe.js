@@ -9,6 +9,13 @@ const DEG = Math.PI / 180;
 const ZAXIS = new THREE.Vector3(0, 0, 1);
 const NORTH = new THREE.Vector3(0, 1, 0);
 
+/* segments whose DESTINATION is one of these travel by bus (overland);
+ * everything else (the intercontinental hops + Bolivia→Brazil→London) flies. */
+const OVERLAND = new Set([
+  'region', 'mexicoCity', 'cancun', 'belizeCity',
+  'guatemala', 'nicaragua', 'cusco', 'laPaz',
+]);
+
 /* lat/lon (degrees) -> point on a unit sphere, matched to the standard
  * equirectangular earth texture used here. */
 function latLonToVec3(lat, lon, r = 1) {
@@ -47,7 +54,7 @@ class Globe {
     this._buildAtmosphere();
     this._buildLights();
     this._buildMarkers();
-    this._buildPlane();
+    this._buildVehicles();
 
     this.tmpVec = new THREE.Vector3();
     this.clock = new THREE.Clock();
@@ -197,59 +204,113 @@ class Globe {
     this.earth.add(this.pin);
   }
 
-  /* a little airliner that flies between stops as you scroll */
+  /* ---- vehicle icons (drawn pointing "up", -y, so heading=0 means north) ---- */
+
   _planeSprite() {
     const c = document.createElement('canvas');
     c.width = c.height = 128;
     const g = c.getContext('2d');
     g.translate(64, 64);
     g.shadowColor = 'rgba(127, 196, 255, 0.95)';
-    g.shadowBlur = 9;
-    g.fillStyle = '#f3f8ff';
-    // top-down airliner silhouette, nose pointing up (-y)
-    const P = [
-      [0, -46], [3.5, -30], [4, -8], [44, 12], [44, 20], [4, 8], [4, 26],
-      [15, 38], [15, 43], [2, 38], [2, 47], [-2, 47], [-2, 38], [-15, 43],
-      [-15, 38], [-4, 26], [-4, 8], [-44, 20], [-44, 12], [-4, -8], [-3.5, -30],
+    g.shadowBlur = 8;
+    g.fillStyle = '#f4f8ff';
+    // four-engine jumbo (747) silhouette
+    const body = [
+      [0, -52], [3, -34], [3.5, -8],
+      [50, 15], [50, 22], [4.5, 7], [4.5, 27],
+      [19, 40], [19, 45], [2.5, 39], [2.5, 49],
+      [-2.5, 49], [-2.5, 39], [-19, 45], [-19, 40],
+      [-4.5, 27], [-4.5, 7], [-50, 22], [-50, 15], [-3.5, -8], [-3, -34],
     ];
     g.beginPath();
-    g.moveTo(P[0][0], P[0][1]);
-    for (let i = 1; i < P.length; i++) g.lineTo(P[i][0], P[i][1]);
+    g.moveTo(body[0][0], body[0][1]);
+    for (let i = 1; i < body.length; i++) g.lineTo(body[i][0], body[i][1]);
     g.closePath();
     g.fill();
+    // four engine pods slung under the wings
+    const eng = (x, y) => {
+      g.beginPath();
+      if (g.roundRect) g.roundRect(x - 2.6, y - 6, 5.2, 12, 2.4);
+      else g.rect(x - 2.6, y - 6, 5.2, 12);
+      g.fill();
+    };
+    eng(17, 1); eng(31, 8); eng(-17, 1); eng(-31, 8);
     const t = new THREE.Texture(c);
     t.needsUpdate = true;
     return t;
   }
 
-  _buildPlane() {
-    const mat = new THREE.SpriteMaterial({
-      map: this._planeSprite(), transparent: true,
-      depthTest: false, depthWrite: false,
-    });
-    this.plane = new THREE.Sprite(mat);
-    this.plane.scale.set(0.11, 0.11, 1);
-    this.plane.visible = false;
-    this.earth.add(this.plane);         // child of earth -> rides the surface
+  _busSprite() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.translate(64, 64);
+    g.shadowColor = 'rgba(255, 196, 120, 0.85)';
+    g.shadowBlur = 8;
+    const w = 26, h = 52, r = 9;
+    g.fillStyle = '#ffd166';                      // coach body (top-down)
+    g.beginPath();
+    if (g.roundRect) g.roundRect(-w / 2, -h / 2, w, h, r); else g.rect(-w / 2, -h / 2, w, h);
+    g.fill();
+    g.fillStyle = 'rgba(15, 25, 45, 0.55)';       // windshield at the front
+    g.beginPath();
+    if (g.roundRect) g.roundRect(-w / 2 + 4, -h / 2 + 4, w - 8, 8, 3);
+    else g.rect(-w / 2 + 4, -h / 2 + 4, w - 8, 8);
+    g.fill();
+    g.fillStyle = 'rgba(15, 25, 45, 0.22)';       // roof / window strips
+    for (let i = 0; i < 3; i++) g.fillRect(-w / 2 + 4, -1 + i * 11, w - 8, 6);
+    const t = new THREE.Texture(c);
+    t.needsUpdate = true;
+    return t;
   }
 
-  /* position the plane along the great circle from A to B at progress t */
-  _updatePlane(keyA, keyB, t) {
+  _buildVehicles() {
+    const mk = (tex, scale) => {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: tex, transparent: true, depthTest: false, depthWrite: false,
+      }));
+      s.scale.set(scale, scale, 1);
+      s.visible = false;
+      this.earth.add(s);                  // child of earth -> rides the surface
+      return s;
+    };
+    this.plane = mk(this._planeSprite(), 0.135);
+    this.bus = mk(this._busSprite(), 0.085);
+  }
+
+  _hideVehicles() { this.plane.visible = false; this.bus.visible = false; }
+
+  /* true great-circle interpolation between two unit vectors */
+  _slerpVec(a, b, t) {
+    const dot = Math.max(-1, Math.min(1, a.dot(b)));
+    const theta = Math.acos(dot);
+    if (theta < 1e-4) return a.clone();
+    const s = Math.sin(theta);
+    return a.clone().multiplyScalar(Math.sin((1 - t) * theta) / s)
+      .add(b.clone().multiplyScalar(Math.sin(t * theta) / s));
+  }
+
+  /* move bus or plane along the great circle from A to B at progress t */
+  _updateVehicle(keyA, keyB, t) {
     const A = window.LOCATIONS[keyA], B = window.LOCATIONS[keyB];
-    if (!A || !B || t <= 0.03 || t >= 0.97) { this.plane.visible = false; return; }
+    if (!A || !B || t <= 0.02 || t >= 0.98) { this._hideVehicles(); return; }
+    const bus = OVERLAND.has(keyB);
+    const sprite = bus ? this.bus : this.plane;
+    (bus ? this.plane : this.bus).visible = false;
+
     const va = latLonToVec3(A.lat, A.lon, 1).normalize();
     const vb = latLonToVec3(B.lat, B.lon, 1).normalize();
-    const cur = va.clone().lerp(vb, t).normalize();
+    const cur = this._slerpVec(va, vb, t);
     const curWorld = cur.clone().applyQuaternion(this.earth.quaternion);
-    if (curWorld.z <= 0.03) { this.plane.visible = false; return; }   // far side
-    const alt = 1.05 + Math.sin(t * Math.PI) * 0.08;                  // arc up then land
-    this.plane.position.copy(cur).multiplyScalar(alt);
-    this.plane.visible = true;
-    // heading: face the direction of travel in screen space
-    const ahead = va.clone().lerp(vb, Math.min(1, t + 0.03)).normalize()
+    if (curWorld.z <= 0.03) { this._hideVehicles(); return; }       // on the far side
+    const alt = bus ? 1.016 : 1.05 + Math.sin(t * Math.PI) * 0.09;  // bus hugs ground; plane arcs
+    sprite.position.copy(cur).multiplyScalar(alt);
+    sprite.visible = true;
+    // heading: point along the direction of travel in screen space
+    const ahead = this._slerpVec(va, vb, Math.min(1, t + 0.04))
       .applyQuaternion(this.earth.quaternion).project(this.camera);
     const here = curWorld.clone().project(this.camera);
-    this.plane.material.rotation = Math.atan2(ahead.y - here.y, ahead.x - here.x) - Math.PI / 2;
+    sprite.material.rotation = Math.atan2(ahead.y - here.y, ahead.x - here.x) - Math.PI / 2;
   }
 
   /* -------------------------------------------------- orientation math */
@@ -279,7 +340,7 @@ class Globe {
     this.earth.quaternion.copy(q);
     this.clouds.quaternion.copy(q);
     this.setActive(key);
-    if (this.plane) this.plane.visible = false;
+    if (this.plane) this._hideVehicles();
   }
 
   /* Interpolate orientation between two locations (t: 0..1). */
@@ -288,7 +349,7 @@ class Globe {
     this.earth.quaternion.copy(q);
     this.clouds.quaternion.copy(q);
     this.setActive(t < 0.5 ? keyA : keyB);
-    this._updatePlane(keyA, keyB, t);
+    this._updateVehicle(keyA, keyB, t);
   }
 
   /* mark which location is "current" (drives the pin + HTML label) */
