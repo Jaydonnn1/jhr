@@ -17,8 +17,7 @@ window.LOCATIONS = {
   newHaven:    { lat: 41.3083, lon: -72.9279, label: 'New Haven',    sub: 'Yale · Connecticut' },
   fremont:     { lat: 37.5485, lon: -121.9886, label: 'Fremont',     sub: 'Tesla · California' },
 
-  /* Travels — establishing shot, then the route */
-  region:      { lat: 24,      lon: -102,     label: 'The Americas', sub: 'overland' },
+  /* Travels — fly into Mexico City, then overland from there */
   mexicoCity:  { lat: 19.4326, lon: -99.1332, label: 'Mexico City',  sub: 'Mexico' },
   cancun:      { lat: 21.1619, lon: -86.8515, label: 'Cancún',       sub: 'Mexico' },
   belizeCity:  { lat: 17.5046, lon: -88.1962, label: 'Belize City',  sub: 'Belize' },

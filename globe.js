@@ -12,13 +12,11 @@ const NORTH = new THREE.Vector3(0, 1, 0);
 /* segments whose DESTINATION is one of these travel by bus (overland);
  * everything else (the intercontinental hops + Bolivia→Brazil→London) flies. */
 const OVERLAND = new Set([
-  'region', 'mexicoCity', 'cancun', 'belizeCity',
-  'guatemala', 'nicaragua', 'cusco', 'laPaz',
+  'cancun', 'belizeCity', 'guatemala', 'nicaragua', 'cusco', 'laPaz',
 ]);
 
 /* land waypoints [lat, lon] so the bus never crosses open water */
 const BUS_WAYPOINTS = {
-  'sanFrancisco>region': [[34, -114], [29, -107]],
   'mexicoCity>cancun': [[18.1, -94.4], [20.97, -89.62]],
   'cancun>belizeCity': [[19.3, -88.05], [18.5, -88.35]],
   'belizeCity>guatemala': [[16.9, -89.6]],
