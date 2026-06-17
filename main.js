@@ -5,8 +5,25 @@
 (function () {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ----------------------------------------------- loading screen */
+  let loaderHidden = false;
+  function hideLoader() {
+    if (loaderHidden) return;
+    loaderHidden = true;
+    if (lenis) lenis.start();              // unlock scrolling
+    window.scrollTo(0, 0);
+    const el = document.getElementById('loader');
+    if (el && !el.classList.contains('done')) {
+      el.classList.add('done');
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 1000);
+    }
+  }
+  // hold the loader so the globe assembly plays out, then reveal
+  const readyLoader = () => setTimeout(hideLoader, Math.max(0, 3600 - performance.now()));
+  setTimeout(hideLoader, 11000);           // fallback if textures never report
+
   /* ----------------------------------------------------- the globe */
-  const globe = new Globe(document.getElementById('globe-canvas'));
+  const globe = new Globe(document.getElementById('globe-canvas'), readyLoader);
   window.addEventListener('resize', () => globe.resize());
 
   /* ordered list of scroll "steps" -> location keys */
@@ -25,6 +42,7 @@
     });
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
+    lenis.stop();                          // locked until the loader is dismissed
   }
 
   gsap.registerPlugin(ScrollTrigger);

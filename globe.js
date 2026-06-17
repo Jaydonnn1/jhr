@@ -40,10 +40,13 @@ function latLonToVec3(lat, lon, r = 1) {
 }
 
 class Globe {
-  constructor(canvas) {
+  constructor(canvas, onReady) {
     this.canvas = canvas;
+    this.onReady = onReady;
     this.quatCache = {};          // key -> Quaternion
     this.activeKey = null;
+    this.manager = new THREE.LoadingManager();
+    if (onReady) this.manager.onLoad = onReady;   // fires once textures finish
 
     this.scene = new THREE.Scene();
 
@@ -77,7 +80,7 @@ class Globe {
   /* -------------------------------------------------- scene contents */
 
   _buildEarth() {
-    const loader = new THREE.TextureLoader();
+    const loader = new THREE.TextureLoader(this.manager);
     const day = loader.load('assets/earth-day.jpg');
     const spec = loader.load('assets/earth-specular.jpg');
     if ('SRGBColorSpace' in THREE) day.colorSpace = THREE.SRGBColorSpace;
@@ -367,6 +370,8 @@ class Globe {
   _updateVehicle(keyA, keyB, t) {
     const A = window.LOCATIONS[keyA], B = window.LOCATIONS[keyB];
     if (!A || !B) { this._hideVehicles(); return; }
+    // no vehicle on the opening view -> Edinburgh; the journey starts at Scotland
+    if (keyA === 'home' || keyB === 'home') { this._hideVehicles(); return; }
     const va = latLonToVec3(A.lat, A.lon, 1).normalize();
     const vb = latLonToVec3(B.lat, B.lon, 1).normalize();
     const span = Math.acos(Math.max(-1, Math.min(1, va.dot(vb))));
