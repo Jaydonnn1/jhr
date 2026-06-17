@@ -370,6 +370,8 @@ class Globe {
   _updateVehicle(keyA, keyB, t) {
     const A = window.LOCATIONS[keyA], B = window.LOCATIONS[keyB];
     if (!A || !B) { this._hideVehicles(); return; }
+    // no vehicle on the opening view -> Edinburgh; the journey starts at Scotland
+    if (keyA === 'home' || keyB === 'home') { this._hideVehicles(); return; }
     const va = latLonToVec3(A.lat, A.lon, 1).normalize();
     const vb = latLonToVec3(B.lat, B.lon, 1).normalize();
     const span = Math.acos(Math.max(-1, Math.min(1, va.dot(vb))));
