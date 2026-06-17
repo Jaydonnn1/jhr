@@ -18,9 +18,9 @@
       setTimeout(() => { if (el.parentNode) el.remove(); }, 1000);
     }
   }
-  // keep the loader up briefly so the assembly reads, then reveal
-  const readyLoader = () => setTimeout(hideLoader, Math.max(0, 1200 - performance.now()));
-  setTimeout(hideLoader, 9000);            // fallback if textures never report
+  // hold the loader so the globe assembly plays out, then reveal
+  const readyLoader = () => setTimeout(hideLoader, Math.max(0, 3600 - performance.now()));
+  setTimeout(hideLoader, 11000);           // fallback if textures never report
 
   /* ----------------------------------------------------- the globe */
   const globe = new Globe(document.getElementById('globe-canvas'), readyLoader);

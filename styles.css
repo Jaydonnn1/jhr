@@ -363,17 +363,15 @@ p { line-height: 1.75; color: #c4cde2; font-weight: 300; }
 .loader-globe .piece {
   transform-box: fill-box;
   transform-origin: center;
-  animation: lo-piece 2.6s ease-in-out infinite both;
+  animation: lo-piece 1.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .loader-globe .line { fill: none; stroke: rgba(159, 208, 255, 0.85); stroke-width: 1.4; }
 .loader-globe .land { fill: rgba(86, 178, 124, 0.6); }
 
 @keyframes lo-piece {
-  0%   { opacity: 0; transform: scale(0.18); }
-  18%  { opacity: 1; transform: scale(1.05); }
-  28%  { transform: scale(1); }
-  66%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.18); }
+  0%   { opacity: 0; transform: scale(0.12); }
+  65%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
 }
 @keyframes lo-rock {
   0%, 100% { transform: rotate(-6deg); }
