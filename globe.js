@@ -16,6 +16,19 @@ const OVERLAND = new Set([
   'guatemala', 'nicaragua', 'cusco', 'laPaz',
 ]);
 
+/* land waypoints [lat, lon] so the bus never crosses open water */
+const BUS_WAYPOINTS = {
+  'sanFrancisco>region': [[34, -114], [29, -107]],
+  'mexicoCity>cancun': [[18.1, -94.4], [20.97, -89.62]],
+  'cancun>belizeCity': [[19.3, -88.05], [18.5, -88.35]],
+  'belizeCity>guatemala': [[16.9, -89.6]],
+  'guatemala>nicaragua': [[13.69, -89.22], [13.0, -87.2]],
+  'nicaragua>cusco': [
+    [9.93, -84.08], [8.98, -79.52], [3.45, -76.53],
+    [-0.18, -78.47], [-2.9, -79.0], [-12.05, -77.04],
+  ],
+};
+
 /* lat/lon (degrees) -> point on a unit sphere, matched to the standard
  * equirectangular earth texture used here. */
 function latLonToVec3(lat, lon, r = 1) {
@@ -211,30 +224,28 @@ class Globe {
     c.width = c.height = 128;
     const g = c.getContext('2d');
     g.translate(64, 64);
-    g.shadowColor = 'rgba(127, 196, 255, 0.95)';
-    g.shadowBlur = 8;
-    g.fillStyle = '#f4f8ff';
-    // four-engine jumbo (747) silhouette
-    const body = [
-      [0, -52], [3, -34], [3.5, -8],
-      [50, 15], [50, 22], [4.5, 7], [4.5, 27],
-      [19, 40], [19, 45], [2.5, 39], [2.5, 49],
-      [-2.5, 49], [-2.5, 39], [-19, 45], [-19, 40],
-      [-4.5, 27], [-4.5, 7], [-50, 22], [-50, 15], [-3.5, -8], [-3, -34],
-    ];
-    g.beginPath();
-    g.moveTo(body[0][0], body[0][1]);
-    for (let i = 1; i < body.length; i++) g.lineTo(body[i][0], body[i][1]);
-    g.closePath();
-    g.fill();
-    // four engine pods slung under the wings
-    const eng = (x, y) => {
+    g.shadowColor = 'rgba(127, 196, 255, 0.9)';
+    g.shadowBlur = 7;
+    g.fillStyle = '#eaf3ff';
+    const rr = (x, y, w, h, r) => {
       g.beginPath();
-      if (g.roundRect) g.roundRect(x - 2.6, y - 6, 5.2, 12, 2.4);
-      else g.rect(x - 2.6, y - 6, 5.2, 12);
+      if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h);
       g.fill();
     };
-    eng(17, 1); eng(31, 8); eng(-17, 1); eng(-31, 8);
+    const poly = (pts) => {
+      g.beginPath();
+      g.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+      g.closePath();
+      g.fill();
+    };
+    // 747: rounded-nose capsule fuselage + swept wings + tailplane + 4 engines
+    rr(-4.5, -50, 9, 96, 4.5);
+    poly([[3, -10], [52, 20], [52, 28], [4, 8]]);
+    poly([[-3, -10], [-52, 20], [-52, 28], [-4, 8]]);
+    poly([[3, 28], [23, 40], [23, 46], [3, 36]]);
+    poly([[-3, 28], [-23, 40], [-23, 46], [-3, 36]]);
+    [[18, 2], [34, 11], [-18, 2], [-34, 11]].forEach(([x, y]) => rr(x - 2.6, y - 7, 5.2, 14, 2.4));
     const t = new THREE.Texture(c);
     t.needsUpdate = true;
     return t;
@@ -247,10 +258,10 @@ class Globe {
     g.translate(64, 64);
     g.shadowColor = 'rgba(255, 196, 120, 0.85)';
     g.shadowBlur = 8;
-    const w = 26, h = 52, r = 9;
+    const w = 26, h = 52;
     g.fillStyle = '#ffd166';                      // coach body (top-down)
     g.beginPath();
-    if (g.roundRect) g.roundRect(-w / 2, -h / 2, w, h, r); else g.rect(-w / 2, -h / 2, w, h);
+    if (g.roundRect) g.roundRect(-w / 2, -h / 2, w, h, 9); else g.rect(-w / 2, -h / 2, w, h);
     g.fill();
     g.fillStyle = 'rgba(15, 25, 45, 0.55)';       // windshield at the front
     g.beginPath();
@@ -274,11 +285,27 @@ class Globe {
       this.earth.add(s);                  // child of earth -> rides the surface
       return s;
     };
-    this.plane = mk(this._planeSprite(), 0.135);
+    this.plane = mk(this._planeSprite(), 0.14);
     this.bus = mk(this._busSprite(), 0.085);
+
+    // dashed route line drawn on the surface (occluded by the globe on the far side)
+    this._pathN = 90;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this._pathN * 3), 3));
+    this.pathLine = new THREE.Line(geo, new THREE.LineDashedMaterial({
+      color: 0xbfe0ff, transparent: true, opacity: 0.85,
+      dashSize: 0.05, gapSize: 0.035, depthWrite: false,
+    }));
+    this.pathLine.visible = false;
+    this._curSeg = '';
+    this.earth.add(this.pathLine);
   }
 
-  _hideVehicles() { this.plane.visible = false; this.bus.visible = false; }
+  _hideVehicles() {
+    this.plane.visible = false;
+    this.bus.visible = false;
+    if (this.pathLine) this.pathLine.visible = false;
+  }
 
   /* true great-circle interpolation between two unit vectors */
   _slerpVec(a, b, t) {
@@ -290,27 +317,69 @@ class Globe {
       .add(b.clone().multiplyScalar(Math.sin(t * theta) / s));
   }
 
-  /* move bus or plane along the great circle from A to B at progress t */
+  /* the path for a segment: a straight great circle, or a land route for buses */
+  _pathVecs(keyA, keyB) {
+    const wps = BUS_WAYPOINTS[keyA + '>' + keyB] || [];
+    const pts = [
+      window.LOCATIONS[keyA],
+      ...wps.map(([lat, lon]) => ({ lat, lon })),
+      window.LOCATIONS[keyB],
+    ];
+    return pts.map((p) => latLonToVec3(p.lat, p.lon, 1).normalize());
+  }
+
+  /* point a fraction t along a multi-segment great-circle path (by arc length) */
+  _pointOnVecs(vecs, t) {
+    if (vecs.length === 2) return this._slerpVec(vecs[0], vecs[1], t);
+    const segs = []; let total = 0;
+    for (let i = 0; i < vecs.length - 1; i++) {
+      const a = Math.acos(Math.max(-1, Math.min(1, vecs[i].dot(vecs[i + 1]))));
+      segs.push(a); total += a;
+    }
+    let d = t * total, i = 0;
+    while (i < segs.length - 1 && d > segs[i]) { d -= segs[i]; i++; }
+    return this._slerpVec(vecs[i], vecs[i + 1], segs[i] > 1e-6 ? d / segs[i] : 0);
+  }
+
+  _setPathLine(vecs) {
+    const pos = this.pathLine.geometry.attributes.position.array;
+    for (let i = 0; i < this._pathN; i++) {
+      const p = this._pointOnVecs(vecs, i / (this._pathN - 1)).multiplyScalar(1.014);
+      pos[i * 3] = p.x; pos[i * 3 + 1] = p.y; pos[i * 3 + 2] = p.z;
+    }
+    this.pathLine.geometry.attributes.position.needsUpdate = true;
+    this.pathLine.geometry.computeBoundingSphere();
+    this.pathLine.computeLineDistances();
+  }
+
+  /* move bus or plane along the route from A to B at progress t */
   _updateVehicle(keyA, keyB, t) {
     const A = window.LOCATIONS[keyA], B = window.LOCATIONS[keyB];
-    if (!A || !B || t <= 0.02 || t >= 0.98) { this._hideVehicles(); return; }
+    if (!A || !B) { this._hideVehicles(); return; }
+    const va = latLonToVec3(A.lat, A.lon, 1).normalize();
+    const vb = latLonToVec3(B.lat, B.lon, 1).normalize();
+    const span = Math.acos(Math.max(-1, Math.min(1, va.dot(vb))));
+    if (span < 0.03 || t <= 0.02 || t >= 0.98) { this._hideVehicles(); return; }
+
+    const seg = keyA + '>' + keyB;
+    const vecs = this._pathVecs(keyA, keyB);
+    if (seg !== this._curSeg) { this._curSeg = seg; this._setPathLine(vecs); }
+    this.pathLine.visible = true;
+
     const bus = OVERLAND.has(keyB);
     const sprite = bus ? this.bus : this.plane;
     (bus ? this.plane : this.bus).visible = false;
 
-    const va = latLonToVec3(A.lat, A.lon, 1).normalize();
-    const vb = latLonToVec3(B.lat, B.lon, 1).normalize();
-    const cur = this._slerpVec(va, vb, t);
+    const cur = this._pointOnVecs(vecs, t);
     const curWorld = cur.clone().applyQuaternion(this.earth.quaternion);
-    if (curWorld.z <= 0.03) { this._hideVehicles(); return; }       // on the far side
-    const alt = bus ? 1.016 : 1.05 + Math.sin(t * Math.PI) * 0.09;  // bus hugs ground; plane arcs
+    const alt = bus ? 1.02 : 1.05 + Math.sin(t * Math.PI) * 0.09;  // bus hugs ground; plane arcs
     sprite.position.copy(cur).multiplyScalar(alt);
-    sprite.visible = true;
-    // heading: point along the direction of travel in screen space
-    const ahead = this._slerpVec(va, vb, Math.min(1, t + 0.04))
+    sprite.visible = curWorld.z > 0.02;                            // hide on the far side
+    // heading: along the path tangent, in screen space
+    const ahead = this._pointOnVecs(vecs, Math.min(1, t + 0.03))
       .applyQuaternion(this.earth.quaternion).project(this.camera);
     const here = curWorld.clone().project(this.camera);
-    sprite.material.rotation = Math.atan2(ahead.y - here.y, ahead.x - here.x) - Math.PI / 2;
+    sprite.material.rotation = Math.PI / 2 - Math.atan2(ahead.y - here.y, ahead.x - here.x);
   }
 
   /* -------------------------------------------------- orientation math */
