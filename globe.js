@@ -40,10 +40,13 @@ function latLonToVec3(lat, lon, r = 1) {
 }
 
 class Globe {
-  constructor(canvas) {
+  constructor(canvas, onReady) {
     this.canvas = canvas;
+    this.onReady = onReady;
     this.quatCache = {};          // key -> Quaternion
     this.activeKey = null;
+    this.manager = new THREE.LoadingManager();
+    if (onReady) this.manager.onLoad = onReady;   // fires once textures finish
 
     this.scene = new THREE.Scene();
 
@@ -77,7 +80,7 @@ class Globe {
   /* -------------------------------------------------- scene contents */
 
   _buildEarth() {
-    const loader = new THREE.TextureLoader();
+    const loader = new THREE.TextureLoader(this.manager);
     const day = loader.load('assets/earth-day.jpg');
     const spec = loader.load('assets/earth-specular.jpg');
     if ('SRGBColorSpace' in THREE) day.colorSpace = THREE.SRGBColorSpace;

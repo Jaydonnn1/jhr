@@ -14,6 +14,50 @@
 </head>
 
 <body>
+  <!-- ========================= LOADING SCREEN ======================= -->
+  <div id="loader" aria-hidden="true">
+    <div class="loader-inner">
+      <svg class="loader-globe" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="lo-oc" cx="38%" cy="34%" r="78%">
+            <stop offset="0%" stop-color="#2b6bd6" />
+            <stop offset="60%" stop-color="#11357a" />
+            <stop offset="100%" stop-color="#08183f" />
+          </radialGradient>
+          <clipPath id="lo-clip"><circle cx="110" cy="110" r="90" /></clipPath>
+        </defs>
+        <g class="globe">
+          <g clip-path="url(#lo-clip)">
+            <circle class="piece" cx="110" cy="110" r="90" fill="url(#lo-oc)" style="animation-delay:0s" />
+            <path class="piece land" d="M66 72 q24 -16 42 -3 q12 11 -4 23 q-22 13 -36 0 q-11 -13 -2 -21 z" style="animation-delay:.52s" />
+            <path class="piece land" d="M122 118 q27 -7 35 12 q5 17 -14 21 q-23 5 -29 -12 q-3 -15 8 -21 z" style="animation-delay:.74s" />
+            <path class="piece land" d="M82 150 q17 -9 27 4 q5 11 -8 17 q-17 7 -23 -6 q-3 -11 4 -15 z" style="animation-delay:.96s" />
+          </g>
+          <ellipse class="piece line" cx="110" cy="56" rx="68" ry="9" style="animation-delay:.2s" />
+          <ellipse class="piece line" cx="110" cy="83" rx="86" ry="9" style="animation-delay:.34s" />
+          <ellipse class="piece line" cx="110" cy="110" rx="90" ry="9" style="animation-delay:.46s" />
+          <ellipse class="piece line" cx="110" cy="137" rx="86" ry="9" style="animation-delay:.6s" />
+          <ellipse class="piece line" cx="110" cy="164" rx="68" ry="9" style="animation-delay:.72s" />
+          <ellipse class="piece line" cx="110" cy="110" rx="3" ry="90" style="animation-delay:.16s" />
+          <ellipse class="piece line" cx="110" cy="110" rx="32" ry="90" style="animation-delay:.28s" />
+          <ellipse class="piece line" cx="110" cy="110" rx="62" ry="90" style="animation-delay:.5s" />
+          <circle class="piece line" cx="110" cy="110" r="90" style="animation-delay:.1s" />
+        </g>
+      </svg>
+      <p class="loader-text">Loading your world<i></i></p>
+    </div>
+  </div>
+  <script>
+    // safety net: never let the loader trap the page if scripts fail to load
+    setTimeout(function () {
+      var l = document.getElementById('loader');
+      if (l && !l.classList.contains('done')) {
+        l.classList.add('done');
+        setTimeout(function () { if (l.parentNode) l.remove(); }, 900);
+      }
+    }, 10000);
+  </script>
+
   <!-- ============================= GLOBE ============================= -->
   <canvas id="globe-canvas"></canvas>
   <div class="scrim"></div>
