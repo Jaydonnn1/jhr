@@ -221,12 +221,12 @@ class Globe {
 
   _planeSprite() {
     const c = document.createElement('canvas');
-    c.width = c.height = 128;
+    c.width = c.height = 160;
     const g = c.getContext('2d');
-    g.translate(64, 64);
-    g.shadowColor = 'rgba(127, 196, 255, 0.9)';
-    g.shadowBlur = 7;
-    g.fillStyle = '#eaf3ff';
+    g.translate(80, 80);
+    g.shadowColor = 'rgba(127, 196, 255, 0.85)';
+    g.shadowBlur = 6;
+    g.fillStyle = '#eef4ff';
     const rr = (x, y, w, h, r) => {
       g.beginPath();
       if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h);
@@ -239,13 +239,23 @@ class Globe {
       g.closePath();
       g.fill();
     };
-    // 747: rounded-nose capsule fuselage + swept wings + tailplane + 4 engines
-    rr(-4.5, -50, 9, 96, 4.5);
-    poly([[3, -10], [52, 20], [52, 28], [4, 8]]);
-    poly([[-3, -10], [-52, 20], [-52, 28], [-4, 8]]);
-    poly([[3, 28], [23, 40], [23, 46], [3, 36]]);
-    poly([[-3, 28], [-23, 40], [-23, 46], [-3, 36]]);
-    [[18, 2], [34, 11], [-18, 2], [-34, 11]].forEach(([x, y]) => rr(x - 2.6, y - 7, 5.2, 14, 2.4));
+    // 747 (top-down, nose up): spindle fuselage, swept wings, 4 engines,
+    // swept tailplane and a vertical fin — traced from the reference icon.
+    g.beginPath();
+    g.moveTo(0, -64);
+    g.bezierCurveTo(7, -57, 7.5, -30, 7, -4);
+    g.bezierCurveTo(6.5, 22, 4.5, 46, 0, 60);
+    g.bezierCurveTo(-4.5, 46, -6.5, 22, -7, -4);
+    g.bezierCurveTo(-7.5, -30, -7, -57, 0, -64);
+    g.closePath();
+    g.fill();
+    poly([[5, -8], [63, 30], [63, 37], [6, 16]]);       // wings (swept)
+    poly([[-5, -8], [-63, 30], [-63, 37], [-6, 16]]);
+    poly([[3, 34], [28, 53], [27, 58], [4, 45]]);        // tailplane (swept)
+    poly([[-3, 34], [-28, 53], [-27, 58], [-4, 45]]);
+    poly([[0, 44], [2.8, 64], [0, 68], [-2.8, 64]]);     // vertical fin
+    [[23, 2], [44, 16], [-23, 2], [-44, 16]]             // 4 engine pods
+      .forEach(([x, y]) => rr(x - 2.9, y - 6.5, 5.8, 14, 2.6));
     const t = new THREE.Texture(c);
     t.needsUpdate = true;
     return t;
@@ -276,17 +286,20 @@ class Globe {
   }
 
   _buildVehicles() {
-    const mk = (tex, scale) => {
-      const s = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: tex, transparent: true, depthTest: false, depthWrite: false,
-      }));
-      s.scale.set(scale, scale, 1);
-      s.visible = false;
-      this.earth.add(s);                  // child of earth -> rides the surface
-      return s;
+    // flat icons laid ON the surface (not billboards) so they rotate with the
+    // globe and stay locked to the route — no screen-space heading to flip.
+    const mk = (tex, size) => {
+      const m = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+      );
+      m.scale.setScalar(size);
+      m.visible = false;
+      this.earth.add(m);
+      return m;
     };
-    this.plane = mk(this._planeSprite(), 0.14);
-    this.bus = mk(this._busSprite(), 0.085);
+    this.plane = mk(this._planeSprite(), 0.17);
+    this.bus = mk(this._busSprite(), 0.10);
 
     // dashed route line drawn on the surface (occluded by the globe on the far side)
     this._pathN = 90;
@@ -361,25 +374,32 @@ class Globe {
     const span = Math.acos(Math.max(-1, Math.min(1, va.dot(vb))));
     if (span < 0.03 || t <= 0.02 || t >= 0.98) { this._hideVehicles(); return; }
 
+    const bus = OVERLAND.has(keyB);
     const seg = keyA + '>' + keyB;
     const vecs = this._pathVecs(keyA, keyB);
-    if (seg !== this._curSeg) { this._curSeg = seg; this._setPathLine(vecs); }
-    this.pathLine.visible = true;
+    if (seg !== this._curSeg) { this._curSeg = seg; if (!bus) this._setPathLine(vecs); }
+    this.pathLine.visible = !bus;                 // dashed route only for flights
 
-    const bus = OVERLAND.has(keyB);
-    const sprite = bus ? this.bus : this.plane;
+    const veh = bus ? this.bus : this.plane;
     (bus ? this.plane : this.bus).visible = false;
 
-    const cur = this._pointOnVecs(vecs, t);
+    const cur = this._pointOnVecs(vecs, t);                  // unit, earth-local
     const curWorld = cur.clone().applyQuaternion(this.earth.quaternion);
-    const alt = bus ? 1.02 : 1.05 + Math.sin(t * Math.PI) * 0.09;  // bus hugs ground; plane arcs
-    sprite.position.copy(cur).multiplyScalar(alt);
-    sprite.visible = curWorld.z > 0.02;                            // hide on the far side
-    // heading: along the path tangent, in screen space
-    const ahead = this._pointOnVecs(vecs, Math.min(1, t + 0.03))
-      .applyQuaternion(this.earth.quaternion).project(this.camera);
-    const here = curWorld.clone().project(this.camera);
-    sprite.material.rotation = Math.PI / 2 - Math.atan2(ahead.y - here.y, ahead.x - here.x);
+    veh.visible = curWorld.z > 0.06;                         // hide on far side / steep limb
+    if (!veh.visible) return;
+
+    // forward tangent of the path at cur (earth-local)
+    let fwd;
+    if (vecs.length === 2) fwd = vecs[1].clone().addScaledVector(cur, -vecs[1].dot(cur));
+    else fwd = this._pointOnVecs(vecs, Math.min(1, t + 0.02)).sub(cur);
+    if (fwd.lengthSq() < 1e-9) fwd.copy(vecs[vecs.length - 1]).sub(cur);
+
+    // lay the icon flat on the surface with its nose along the path
+    const n = cur;                                           // surface normal (unit)
+    fwd.addScaledVector(n, -fwd.dot(n)).normalize();         // tangent within surface plane
+    const right = new THREE.Vector3().crossVectors(fwd, n);
+    veh.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, fwd, n));
+    veh.position.copy(n).multiplyScalar(bus ? 1.012 : 1.02);
   }
 
   /* -------------------------------------------------- orientation math */
